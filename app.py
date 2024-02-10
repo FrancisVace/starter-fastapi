@@ -58,6 +58,7 @@ def set_logging(b):
 def poll_branch_data(background_tasks: BackgroundTasks):
     if not logging:
         return
+    print("Starting get branch data")
     background_tasks.add_task(get_branch_data)
     time.sleep(600)
     poll_branch_data(background_tasks)
