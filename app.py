@@ -36,18 +36,18 @@ class OccupancyData(BaseModel):
 
 
 live_branch_info = {
-    westend_name: {},
-    milton_name: {},
-    newstead_name: {},
+    westend_name: [],
+    milton_name: [],
+    newstead_name: [],
 }
 
 
 def reset_data():
     global live_branch_info
     live_branch_info = {
-        westend_name: {},
-        milton_name: {},
-        newstead_name: {},
+        westend_name: [],
+        milton_name: [],
+        newstead_name: [],
     }
 
 
