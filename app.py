@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 
@@ -55,16 +56,16 @@ def set_logging(b):
     logging = b
 
 
-def poll_branch_data(background_tasks: BackgroundTasks):
+def poll_branch_data():
     if not logging:
         return
     print("Starting get branch data")
-    background_tasks.add_task(get_branch_data)
+    asyncio.run(get_branch_data())
     time.sleep(600)
-    poll_branch_data(background_tasks)
+    poll_branch_data()
 
 
-def get_branch_data():
+async def get_branch_data():
     for k, v in branch_ids.items():
         print(k, v)
         url = "https://portal.urbanclimb.com.au/uc-services/ajax/gym/occupancy.ashx?branch=" + v
@@ -90,7 +91,7 @@ async def favicon():
 @app.post("/logging/start")
 async def start_logging(background_tasks: BackgroundTasks):
     set_logging(True)
-    background_tasks.add_task(poll_branch_data, background_tasks)
+    background_tasks.add_task(poll_branch_data)
     return "Started Logging data"
 
 
