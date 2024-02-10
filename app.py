@@ -92,7 +92,7 @@ async def favicon():
 @app.get("/logging/start")
 async def start_logging():
     set_logging(True)
-    asyncio.create_task(poll_branch_data())
+    asyncio.run(poll_branch_data())
     return "Started Logging data"
 
 
