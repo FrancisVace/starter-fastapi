@@ -1,8 +1,7 @@
-import asyncio
 import json
 import time
 
-from fastapi import FastAPI
+from fastapi import BackgroundTasks, FastAPI
 from fastapi.responses import FileResponse
 import requests
 
@@ -60,12 +59,12 @@ def set_logging(b):
     logging = b
 
 
-async def poll_branch_data():
+def poll_branch_data():
     if not logging:
         return
     get_branch_data()
     time.sleep(600)
-    await poll_branch_data()
+    poll_branch_data()
 
 
 def get_branch_data():
@@ -92,7 +91,7 @@ async def favicon():
 @app.get("/logging/start")
 async def start_logging():
     set_logging(True)
-    asyncio.run(poll_branch_data())
+    background_tasks.add_task(poll_branch_data)
     return "Started Logging data"
 
 
