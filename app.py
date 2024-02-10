@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 
@@ -59,12 +60,12 @@ def set_logging(b):
     logging = b
 
 
-def poll_branch_data():
+async def poll_branch_data():
     if not logging:
         return
     get_branch_data()
     time.sleep(600)
-    poll_branch_data()
+    await poll_branch_data()
 
 
 def get_branch_data():
@@ -89,7 +90,7 @@ async def favicon():
 @app.get("/logging/start")
 async def start_logging():
     set_logging(True)
-    poll_branch_data()
+    asyncio.create_task(poll_branch_data())
     return "Started Logging data"
 
 
