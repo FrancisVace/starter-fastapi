@@ -65,6 +65,14 @@ def poll_branch_data():
     poll_branch_data()
 
 
+def stay_awake():
+    if not logging:
+        return
+    print("Stay awake")
+    time.sleep(10)
+    stay_awake()
+
+
 async def get_branch_data():
     for k, v in branch_ids.items():
         print(k, v)
@@ -92,6 +100,7 @@ async def favicon():
 async def start_logging(background_tasks: BackgroundTasks):
     set_logging(True)
     background_tasks.add_task(poll_branch_data)
+    background_tasks.add_task(stay_awake)
     return "Started Logging data"
 
 
