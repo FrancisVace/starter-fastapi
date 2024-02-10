@@ -10,10 +10,6 @@ from pydantic import BaseModel
 app = FastAPI()
 
 
-class Item(BaseModel):
-    item_id: int
-
-
 westend_name = "westend"
 milton_name = "milton"
 newstead_name = "newstead"
@@ -69,8 +65,10 @@ def poll_branch_data():
 
 def get_branch_data():
     for k, v in branch_ids.items():
+        print(k, v)
         url = "https://portal.urbanclimb.com.au/uc-services/ajax/gym/occupancy.ashx?branch=" + v
         page = requests.get(url).text
+        print(page)
         res = json.loads(page)
         time_str = res["LastUpdated"].split("T")[1][:5].replace(":", "")
         occupancy_data = OccupancyData(occupancy=res['CurrentPercentage'], time=time_str)
@@ -88,14 +86,14 @@ async def favicon():
     return FileResponse('favicon.ico')
 
 
-@app.get("/logging/start")
+@app.post("/logging/start")
 async def start_logging(background_tasks: BackgroundTasks):
     set_logging(True)
     background_tasks.add_task(poll_branch_data)
     return "Started Logging data"
 
 
-@app.get("/logging/stop")
+@app.post("/logging/stop")
 async def stop_logging():
     set_logging(False)
     reset_data()
@@ -115,8 +113,3 @@ async def read_item(item_id: int):
 @app.get("/items/")
 async def list_items():
     return [{"item_id": 1, "name": "Foo"}, {"item_id": 2, "name": "Bar"}]
-
-
-@app.post("/items/")
-async def create_item(item: Item):
-    return item
