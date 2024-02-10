@@ -59,18 +59,12 @@ def set_logging(b):
 def poll_branch_data():
     if not logging:
         return
-    print("Starting get branch data")
+
     asyncio.run(get_branch_data())
-    time.sleep(600)
+    for x in range(10):
+        time.sleep(60)
+        print("Stay awake")
     poll_branch_data()
-
-
-def stay_awake():
-    if not logging:
-        return
-    print("Stay awake")
-    time.sleep(10)
-    stay_awake()
 
 
 async def get_branch_data():
@@ -100,7 +94,6 @@ async def favicon():
 async def start_logging(background_tasks: BackgroundTasks):
     set_logging(True)
     background_tasks.add_task(poll_branch_data)
-    background_tasks.add_task(stay_awake)
     return "Started Logging data"
 
 
