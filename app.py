@@ -89,7 +89,7 @@ async def favicon():
 
 
 @app.get("/logging/start")
-async def start_logging():
+async def start_logging(background_tasks: BackgroundTasks):
     set_logging(True)
     background_tasks.add_task(poll_branch_data)
     return "Started Logging data"
