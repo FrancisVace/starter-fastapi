@@ -1,4 +1,5 @@
 import json
+import time
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -13,10 +14,14 @@ class Item(BaseModel):
     item_id: int
 
 
+westend_name = "westend"
+milton_name = "milton"
+newstead_name = "newstead"
+
 branch_ids = {
-    'westend': "D969F1B2-0C9F-49A9-B2AC-D7775642F298",
-    'milton': "690326F9-98CE-4249-BD91-53A0676A137B",
-    'newstead': "A3010228-DFC6-4317-86C0-3839FFDF3FD0"
+    westend_name: "D969F1B2-0C9F-49A9-B2AC-D7775642F298",
+    milton_name: "690326F9-98CE-4249-BD91-53A0676A137B",
+    newstead_name: "A3010228-DFC6-4317-86C0-3839FFDF3FD0"
 }
 
 
@@ -25,20 +30,79 @@ class BranchInfo(BaseModel):
     current_occupancy: float
 
 
-@app.get("/")
-async def root():
-    branch_list = []
+class OccupancyData(BaseModel):
+    occupancy: float
+    time: str
+
+
+live_branch_info = {
+    westend_name: {},
+    milton_name: {},
+    newstead_name: {},
+}
+
+
+def reset_data():
+    global live_branch_info
+    live_branch_info = {
+        westend_name: {},
+        milton_name: {},
+        newstead_name: {},
+    }
+
+
+logging = True
+
+
+def set_logging(b):
+    global logging
+    logging = b
+
+
+def poll_branch_data():
+    if not logging:
+        return
+    get_branch_data()
+    time.sleep(600)
+    poll_branch_data()
+
+
+def get_branch_data():
     for k, v in branch_ids.items():
         url = "https://portal.urbanclimb.com.au/uc-services/ajax/gym/occupancy.ashx?branch=" + v
         page = requests.get(url).text
         res = json.loads(page)
-        branch_list.append(BranchInfo(name=k, current_occupancy=res['CurrentPercentage']))
-    return branch_list
+        time_str = res["LastUpdated"].split("T")[1][:5].replace(":", "")
+        live_branch_info[k].append(OccupancyData(occupancy=res['CurrentPercentage'], time=time_str))
+
+
+@app.get("/")
+async def root():
+    return "Welcome to the Urban Climb data logger"
 
 
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
     return FileResponse('favicon.ico')
+
+
+@app.get("/logging/start")
+async def start_logging():
+    set_logging(True)
+    poll_branch_data()
+    return "Started Logging data"
+
+
+@app.get("/logging/stop")
+async def start_logging():
+    set_logging(False)
+    reset_data()
+    return "Stopped Logging data"
+
+
+@app.get("/data")
+async def root():
+    return live_branch_info
 
 
 @app.get("/item/{item_id}")
