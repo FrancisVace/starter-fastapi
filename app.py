@@ -74,7 +74,9 @@ def get_branch_data():
         page = requests.get(url).text
         res = json.loads(page)
         time_str = res["LastUpdated"].split("T")[1][:5].replace(":", "")
-        live_branch_info[k].append(OccupancyData(occupancy=res['CurrentPercentage'], time=time_str))
+        occupancy_data = OccupancyData(occupancy=res['CurrentPercentage'], time=time_str)
+        print(occupancy_data)
+        live_branch_info[k].append(occupancy_data)
 
 
 @app.get("/")
@@ -102,7 +104,7 @@ async def stop_logging():
 
 
 @app.get("/data")
-async def root():
+async def get_data():
     return live_branch_info
 
 
