@@ -55,12 +55,12 @@ def set_logging(b):
     logging = b
 
 
-def poll_branch_data():
+def poll_branch_data(background_tasks: BackgroundTasks):
     if not logging:
         return
-    get_branch_data()
+    background_tasks.add_task(get_branch_data)
     time.sleep(600)
-    poll_branch_data()
+    poll_branch_data(background_tasks)
 
 
 def get_branch_data():
@@ -89,7 +89,7 @@ async def favicon():
 @app.post("/logging/start")
 async def start_logging(background_tasks: BackgroundTasks):
     set_logging(True)
-    background_tasks.add_task(poll_branch_data)
+    background_tasks.add_task(poll_branch_data, background_tasks)
     return "Started Logging data"
 
 
