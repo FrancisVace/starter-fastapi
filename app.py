@@ -94,7 +94,7 @@ async def start_logging():
 
 
 @app.get("/logging/stop")
-async def start_logging():
+async def stop_logging():
     set_logging(False)
     reset_data()
     return "Stopped Logging data"
